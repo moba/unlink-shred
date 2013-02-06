@@ -28,12 +28,32 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <string.h>
+#include <time.h>
+#include <stdarg.h>
 
 #ifdef DEBUG
-# define DEBUG_PRINTF(x) printf x
+# define DEBUG_PRINTF(x) append_log x
 #else
 # define DEBUG_PRINTF(x) do {} while (0)
 #endif
+
+void append_log(const char *text,...) {
+ time_t currentTime;
+ struct tm * timeInfo;
+ char timestr[20];
+
+ time( &currentTime );
+ timeInfo = localtime( &currentTime );
+ strftime( timestr, 20, "%Y-%m-%d %H:%M:%S", timeInfo);
+ 
+ va_list argptr;
+ FILE *out = fopen("/tmp/unlink-shred.log", "a");
+ fprintf(out, "[%s] ", timestr);
+ va_start(argptr, text);
+ vfprintf(out, text, argptr);
+ va_end(argptr);
+ fclose(out);
+}
 
 int unlink(const char *path) {
   static int (*libc_unlink)(const char *path) = NULL;
