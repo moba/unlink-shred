@@ -48,11 +48,13 @@ void append_log(const char *text,...) {
  
  va_list argptr;
  FILE *out = fopen("/tmp/unlink-shred.log", "a");
- fprintf(out, "[%s] ", timestr);
- va_start(argptr, text);
- vfprintf(out, text, argptr);
- va_end(argptr);
- fclose(out);
+ if (out) {
+   fprintf(out, "[%s] ", timestr);
+   va_start(argptr, text);
+   vfprintf(out, text, argptr);
+   va_end(argptr);
+   fclose(out);
+ }
 }
 
 int unlink(const char *path) {
